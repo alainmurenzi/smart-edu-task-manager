@@ -3,7 +3,8 @@ Flask-SQLAlchemy==3.0.5
 Flask-Login==0.6.3
 Flask-WTF==1.1.1
 Werkzeug==2.3.7
-scikit-learn==1.5.2
+gunicorn==21.2.0
+# scikit-learn==1.5.2
 pandas==2.3.3
 numpy==2.3.5
 WTForms==3.2.1
