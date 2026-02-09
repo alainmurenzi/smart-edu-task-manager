@@ -9,7 +9,8 @@ login_manager = LoginManager()
 def create_app():
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-this-in-production'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///smart_edu.db'
+    # Use absolute path to database in instance folder
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'smart_edu.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
     app.config['SESSION_COOKIE_SECURE'] = False  # For development
@@ -39,5 +40,8 @@ def create_app():
 
     from .admin import admin as admin_blueprint
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
+
+    from .forum import forum as forum_blueprint
+    app.register_blueprint(forum_blueprint)
 
     return app

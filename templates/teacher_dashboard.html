@@ -1,204 +1,175 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Teacher Dashboard</h2>
-<p>Welcome, {{ current_user.name }}!</p>
-
-<!-- Teacher Classes and Subjects Overview -->
-<div class="row mb-4">
-    <div class="col">
+<div class="row">
+    <!-- Left Sidebar - Assigned Classes & Subjects -->
+    <div class="col-md-3">
         <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">My Classes & Subjects</h5>
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> My Classes & Subjects</h6>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 {% if teacher_classes_info %}
-                <div class="row">
+                <div class="list-group list-group-flush">
                     {% for class_info in teacher_classes_info %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-primary">
-                            <div class="card-header bg-primary text-white">
-                                <h6 class="mb-0">{{ class_info.class.name }}</h6>
-                            </div>
-                            <div class="card-body">
-                                {% if class_info.teaching_subjects %}
-                                <p class="mb-2"><strong>Teaching Subjects:</strong></p>
-                                <div class="d-flex flex-wrap gap-1">
-                                    {% for subject in class_info.teaching_subjects %}
-                                    <span class="badge bg-success">{{ subject.name }}</span>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-
-                                {% if class_info.available_subjects %}
-                                <p class="mb-2 mt-2"><strong>All Available Subjects:</strong></p>
-                                <div class="d-flex flex-wrap gap-1">
-                                    {% for subject in class_info.available_subjects %}
-                                    {% if subject.id in current_user.selected_subjects|map(attribute='id')|list %}
-                                    <span class="badge bg-success">{{ subject.name }}</span>
-                                    {% else %}
-                                    <span class="badge bg-info">{{ subject.name }}</span>
-                                    {% endif %}
-                                    {% endfor %}
-                                </div>
-                                {% else %}
-                                <p class="text-muted">No subjects assigned to this class yet.</p>
-                                {% endif %}
-                                <hr>
-                                <p class="mb-1"><strong>Students:</strong> {{ class_info.student_count }}</p>
-                            </div>
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>{{ class_info.class.name }}</strong>
+                            <span class="badge bg-primary">{{ class_info.teaching_subjects|length }} subjects</span>
                         </div>
+                        {% if class_info.teaching_subjects %}
+                        <div class="mt-2">
+                            {% for subject in class_info.teaching_subjects %}
+                            <span class="badge bg-success mb-1">{{ subject.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <small class="text-muted">{{ class_info.student_count }} students</small>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-school fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Classes Assigned</h5>
-                    <p class="text-muted">You haven't been assigned to any classes yet. Please contact an administrator.</p>
+                <div class="p-3 text-center text-muted">
+                    <i class="fas fa-school fa-2x mb-2"></i>
+                    <p class="mb-0">No Classes Assigned</p>
+                    <small>Contact administrator</small>
                 </div>
                 {% endif %}
             </div>
         </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
+        
+        <!-- Create Task Quick Button -->
+        <div class="card mt-3">
             <div class="card-body">
-                <h5 class="card-title">Create New Task</h5>
-                <p class="card-text">Create a new task with priority classification</p>
-                <a href="{{ url_for('teacher.create_task') }}" class="btn btn-primary">Create Task</a>
+                <a href="{{ url_for('teacher.create_task') }}" class="btn btn-primary w-100">
+                    <i class="fas fa-plus-circle"></i> Create New Task
+                </a>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Manage Subjects</h5>
-                <p class="card-text">Select the subjects you teach in your classes</p>
-                <a href="{{ url_for('teacher.select_subjects') }}" class="btn btn-info">Select Subjects</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Student Overview -->
-<div class="row mb-4">
-    <div class="col">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Student Performance Overview</h5>
-            </div>
-            <div class="card-body">
-                {% if student_stats %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Student Name</th>
-                                <th>Class</th>
-                                <th>Total Tasks</th>
-                                <th>Completed</th>
-                                <th>In Progress</th>
-                                <th>Overdue</th>
-                                <th>Completion Rate</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for stat in student_stats %}
-                            <tr>
-                                <td><strong>{{ stat.student.name }}</strong></td>
-                                <td>{{ stat.student.class_name or 'N/A' }}</td>
-                                <td>{{ stat.total_tasks }}</td>
-                                <td>
-                                    <span class="badge bg-success">{{ stat.completed_tasks }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-primary">{{ stat.in_progress_tasks }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-danger">{{ stat.overdue_tasks }}</span>
-                                </td>
-                                <td>
-                                    <div class="progress" style="width: 80px;">
-                                        <div class="progress-bar" role="progressbar"
-                                             style="width: {{ stat.completion_rate }}%"
-                                             aria-valuenow="{{ stat.completion_rate }}"
-                                             aria-valuemin="0"
-                                             aria-valuemax="100">
-                                            {{ stat.completion_rate|round(1) }}%
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if stat.overdue_tasks > 0 %}
-                                        <span class="badge bg-warning">Needs Attention</span>
-                                    {% elif stat.completion_rate >= 80 %}
-                                        <span class="badge bg-success">Excellent</span>
-                                    {% elif stat.completion_rate >= 60 %}
-                                        <span class="badge bg-info">Good</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">Needs Improvement</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    
+    <!-- Main Content Area -->
+    <div class="col-md-9">
+        <h2>Teacher Dashboard</h2>
+        <p>Welcome, {{ current_user.name }}!</p>
+        
+        <!-- Student Overview -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Student Performance Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if student_stats %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered">
+                                <thead style="background-color: #f8f9fa;">
+                                    <tr>
+                                        <th class="text-dark">Student Name</th>
+                                        <th class="text-dark">Class</th>
+                                        <th class="text-dark">Total Tasks</th>
+                                        <th class="text-dark">Completed</th>
+                                        <th class="text-dark">In Progress</th>
+                                        <th class="text-dark">Overdue</th>
+                                        <th class="text-dark">Completion Rate</th>
+                                        <th class="text-dark">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-dark">
+                                    {% for stat in student_stats %}
+                                    <tr>
+                                        <td><strong>{{ stat.student.name }}</strong></td>
+                                        <td>{{ stat.student.class_name or 'N/A' }}</td>
+                                        <td>{{ stat.total_tasks }}</td>
+                                        <td>
+                                            <span class="badge bg-success">{{ stat.completed_tasks }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ stat.in_progress_tasks }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-danger">{{ stat.overdue_tasks }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="width: 80px;">
+                                                <div class="progress-bar" role="progressbar"
+                                                     style="width: {{ stat.completion_rate }}%"
+                                                     aria-valuenow="{{ stat.completion_rate }}"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                    {{ stat.completion_rate|round(1) }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if stat.overdue_tasks > 0 %}
+                                                <span class="badge bg-warning">Needs Attention</span>
+                                            {% elif stat.completion_rate >= 80 %}
+                                                <span class="badge bg-success">Excellent</span>
+                                            {% elif stat.completion_rate >= 60 %}
+                                                <span class="badge bg-info">Good</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Needs Improvement</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Students Registered</h5>
+                            <p class="text-muted">Students will appear here once they register.</p>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No Students Registered</h5>
-                    <p class="text-muted">Students will appear here once they register.</p>
-                </div>
-                {% endif %}
             </div>
         </div>
+        
+        <h3 class="mt-4">Your Tasks</h3>
+        {% if tasks %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Priority</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>
+                        <span class="badge
+                            {% if task.priority == 'urgent_important' %}bg-danger
+                            {% elif task.priority == 'high_priority' %}bg-warning
+                            {% elif task.priority == 'medium_priority' %}bg-info
+                            {% else %}bg-secondary{% endif %}">
+                            {{ task.priority.replace('_', ' ').title() }}
+                        </span>
+                    </td>
+                    <td>{{ task.deadline.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('teacher.task_progress', task_id=task.id) }}" class="btn btn-sm btn-info">Progress</a>
+                        <a href="{{ url_for('teacher.review_submissions', task_id=task.id) }}" class="btn btn-sm btn-success">Review</a>
+                        <a href="{{ url_for('teacher.edit_task', task_id=task.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ url_for('teacher.delete_task', task_id=task.id) }}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this task? This will also delete all submissions and assignments.')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">No tasks created yet.</p>
+        {% endif %}
     </div>
 </div>
-
-<h3 class="mt-4">Your Tasks</h3>
-{% if tasks %}
-<table class="table">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Priority</th>
-            <th>Deadline</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for task in tasks %}
-        <tr>
-            <td>{{ task.title }}</td>
-            <td>
-                <span class="badge
-                    {% if task.priority == 'urgent_important' %}bg-danger
-                    {% elif task.priority == 'high_priority' %}bg-warning
-                    {% elif task.priority == 'medium_priority' %}bg-info
-                    {% else %}bg-secondary{% endif %}">
-                    {{ task.priority.replace('_', ' ').title() }}
-                </span>
-            </td>
-            <td>{{ task.deadline.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td>
-                <a href="{{ url_for('teacher.task_progress', task_id=task.id) }}" class="btn btn-sm btn-info">Progress</a>
-                <a href="{{ url_for('teacher.review_submissions', task_id=task.id) }}" class="btn btn-sm btn-success">Review</a>
-                <a href="{{ url_for('teacher.edit_task', task_id=task.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                <form action="{{ url_for('teacher.delete_task', task_id=task.id) }}" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this task? This will also delete all submissions and assignments.')">Delete</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No tasks created yet. <a href="{{ url_for('teacher.create_task') }}">Create your first task</a></p>
-{% endif %}
 {% endblock %}

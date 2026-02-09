@@ -44,18 +44,28 @@
                         {% endfor %}
                     </div>
 
-                    <div class="mb-3" id="subject-field" style="display: none;">
-                        {{ form.subject.label(class="form-label") }}
-                        {{ form.subject(class="form-control") }}
-                        {% for error in form.subject.errors %}
-                            <div class="text-danger">{{ error }}</div>
-                        {% endfor %}
                     </div>
 
                     <div class="mb-3" id="class-field" style="display: none;">
                         {{ form.class_id.label(class="form-label") }}
                         {{ form.class_id(class="form-select") }}
                         {% for error in form.class_id.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3" id="teaching-classes-field" style="display: none;">
+                        {{ form.teaching_classes.label(class="form-label") }}
+                        {{ form.teaching_classes(class="form-select", multiple=True, size=5) }}
+                        {% for error in form.teaching_classes.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3" id="teaching-subjects-field" style="display: none;">
+                        {{ form.teaching_subjects.label(class="form-label") }}
+                        {{ form.teaching_subjects(class="form-select", multiple=True, size=5) }}
+                        {% for error in form.teaching_subjects.errors %}
                             <div class="text-danger">{{ error }}</div>
                         {% endfor %}
                     </div>
@@ -90,13 +100,15 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const userTypeSelect = document.querySelector('select[name="user_type"]');
-    const subjectField = document.getElementById('subject-field');
     const classField = document.getElementById('class-field');
+    const teachingClassesField = document.getElementById('teaching-classes-field');
+    const teachingSubjectsField = document.getElementById('teaching-subjects-field');
 
     function updateFields() {
         const userType = userTypeSelect.value;
-        subjectField.style.display = userType === 'teacher' ? 'block' : 'none';
         classField.style.display = userType === 'student' ? 'block' : 'none';
+        teachingClassesField.style.display = userType === 'teacher' ? 'block' : 'none';
+        teachingSubjectsField.style.display = userType === 'teacher' ? 'block' : 'none';
     }
 
     userTypeSelect.addEventListener('change', updateFields);

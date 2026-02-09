@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-comments"></i> {{ room.name }}</h2>
+            <p class="text-muted">Monitoring forum messages</p>
+        </div>
+        <div class="col-md-4 text-right">
+            <a href="{{ url_for('forum.admin_forums') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Forums
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="card">
+        <div class="card-header {% if room.room_type == 'teacher' %}bg-success{% else %}bg-primary{% endif %} text-white">
+            <h5 class="mb-0">
+                {% if room.room_type == 'teacher' %}
+                    <i class="fas fa-chalkboard-teacher"></i> Teacher Forum Messages
+                {% else %}
+                    <i class="fas fa-users"></i> Class Forum Messages
+                {% endif %}
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Author</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for message in messages %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ message.user.name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ message.user.user_type|capitalize }}</small>
+                                    </td>
+                                    <td style="max-width: 400px;">
+                                        {{ message.content }}
+                                    </td>
+                                    <td>
+                                        {{ message.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                    </td>
+                                    <td>
+                                        <form action="{{ url_for('forum.admin_delete_message', message_id=message.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this message?')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-comment-slash fa-3x mb-3"></i>
+                    <p>No messages in this forum yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Forum Info -->
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Forum Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <strong>Forum Type:</strong>
+                    {% if room.room_type == 'teacher' %}
+                        <span class="badge badge-success">Teachers Forum</span>
+                    {% else %}
+                        <span class="badge badge-primary">Class Forum</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <strong>Total Messages:</strong> {{ messages|length }}
+                </div>
+                <div class="col-md-4">
+                    <strong>Status:</strong>
+                    {% if room.is_active %}
+                        <span class="badge badge-success">Active</span>
+                    {% else %}
+                        <span class="badge badge-danger">Inactive</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if room.class_group %}
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <strong>Class:</strong> {{ room.class_group.name }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

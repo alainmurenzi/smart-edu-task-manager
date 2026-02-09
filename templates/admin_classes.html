@@ -42,10 +42,36 @@
                     {% endif %}
                 </td>
                 <td>{{ class_obj.students|length }}</td>
-                <td>{{ class_obj.teachers|length }}</td>
+                <td>
+                    {% if class_obj.teachers %}
+                        <ul class="list-unstyled mb-0">
+                        {% for teacher in class_obj.teachers %}
+                            <li>
+                                <i class="fas fa-user-tie"></i> {{ teacher.name }}
+                                {% set teacher_subjects = [] %}
+                                {% for subject in class_obj.subjects %}
+                                    {% for tc in subject.teaching_teachers %}
+                                        {% if tc.id == teacher.id and class_obj in tc.teaching_classes %}
+                                            {% set teacher_subjects = teacher_subjects + [subject.name] %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                                {% if teacher_subjects %}
+                                    <br><small class="text-muted">{{ teacher_subjects|join(', ') }}</small>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <span class="text-muted">No teachers</span>
+                    {% endif %}
+                </td>
                 <td>{{ class_obj.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                 <td>
                     <div class="btn-group" role="group">
+                        <a href="{{ url_for('admin.manage_class_subjects', class_id=class_obj.id) }}" class="btn btn-sm btn-outline-info" title="Manage Subjects & Teachers">
+                            <i class="bi bi-book"></i> Subjects
+                        </a>
                         <a href="{{ url_for('admin.edit_class', class_id=class_obj.id) }}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-pencil"></i> Edit
                         </a>

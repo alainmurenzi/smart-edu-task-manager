@@ -1,265 +1,289 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Admin Dashboard</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <a href="{{ url_for('admin.create_notification') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-bell"></i> Send Notification
-            </a>
-            <a href="{{ url_for('admin.manage_users') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-people"></i> Manage Users
-            </a>
-            <a href="{{ url_for('admin.analytics') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-graph-up"></i> Analytics
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- System Statistics -->
-<div class="row mb-4">
-    <div class="col-md-2">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div class="card-text">
-                        <h5 class="card-title">Total Users</h5>
-                        <h2>{{ stats.total_users }}</h2>
-                        <small>{{ weekly_stats.new_users }} new this week</small>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div class="card-text">
-                        <h5 class="card-title">Total Classes</h5>
-                        <h2>{{ stats.total_classes }}</h2>
-                        <small>Active classes</small>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="bi bi-house-door" style="font-size: 2rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div class="card-text">
-                        <h5 class="card-title">Total Tasks</h5>
-                        <h2>{{ stats.total_tasks }}</h2>
-                        <small>{{ weekly_stats.new_tasks }} new this week</small>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="bi bi-clipboard-check" style="font-size: 2rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div class="card-text">
-                        <h5 class="card-title">Submissions</h5>
-                        <h2>{{ stats.total_submissions }}</h2>
-                        <small>{{ weekly_stats.new_submissions }} new this week</small>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="bi bi-file-earmark-text" style="font-size: 2rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-danger">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div class="card-text">
-                        <h5 class="card-title">Overdue Tasks</h5>
-                        <h2>{{ stats.overdue_tasks }}</h2>
-                        <small>Need attention</small>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- User Distribution -->
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">User Distribution</h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-4">
-                        <h3 class="text-primary">{{ stats.total_teachers }}</h3>
-                        <small>Teachers</small>
-                    </div>
-                    <div class="col-4">
-                        <h3 class="text-success">{{ stats.total_students }}</h3>
-                        <small>Students</small>
-                    </div>
-                    <div class="col-4">
-                        <h3 class="text-warning">1</h3>
-                        <small>Admin</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Assignment Status</h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-6">
-                        <h3 class="text-success">{{ stats.completed_assignments }}</h3>
-                        <small>Completed</small>
-                    </div>
-                    <div class="col-6">
-                        <h3 class="text-secondary">{{ stats.total_assignments - stats.completed_assignments }}</h3>
-                        <small>Pending/In Progress</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Recent Activity -->
 <div class="row">
-    <div class="col-md-4">
+    <!-- Left Sidebar - Admin Navigation -->
+    <div class="col-md-3">
         <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Recent Users</h5>
+            <div class="card-header bg-dark text-white">
+                <h6 class="mb-0"><i class="fas fa-cogs"></i> Admin Navigation</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('admin.manage_users') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users me-2"></i> Manage Users
+                    </a>
+                    <a href="{{ url_for('admin.manage_classes') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-school me-2"></i> Manage Classes
+                    </a>
+                    <a href="{{ url_for('admin.manage_subjects') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-book me-2"></i> Manage Subjects
+                    </a>
+                    <a href="{{ url_for('admin.manage_tasks') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tasks me-2"></i> Manage Tasks
+                    </a>
+                    <a href="{{ url_for('admin.create_task') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-plus-circle me-2"></i> Create Task
+                    </a>
+                    <a href="{{ url_for('admin.analytics') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-line me-2"></i> Analytics
+                    </a>
+                    <a href="{{ url_for('admin.create_notification') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bell me-2"></i> Send Notification
+                    </a>
+                    <a href="{{ url_for('admin.view_contact_messages') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-envelope me-2"></i> Contact Messages
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Create Buttons -->
+        <div class="card mt-3">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-plus-circle"></i> Quick Actions</h6>
             </div>
             <div class="card-body">
-                {% if recent_users %}
-                    <ul class="list-unstyled">
-                        {% for user in recent_users %}
-                        <li class="mb-2">
-                            <strong>{{ user.name }}</strong>
-                            <small class="text-muted d-block">{{ user.email }}</small>
-                            <small class="badge bg-{{ 'primary' if user.user_type == 'teacher' else 'success' if user.user_type == 'student' else 'warning' }}">
-                                {{ user.user_type.title() }}
-                            </small>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted">No recent users</p>
-                {% endif %}
+                <a href="{{ url_for('admin.create_task') }}" class="btn btn-warning w-100 mb-2">
+                    <i class="fas fa-tasks"></i> Create Task
+                </a>
+                <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary w-100 mb-2">
+                    <i class="fas fa-user-plus"></i> Add User
+                </a>
+                <a href="{{ url_for('admin.create_class') }}" class="btn btn-success w-100 mb-2">
+                    <i class="fas fa-home"></i> Add Class
+                </a>
+                <a href="{{ url_for('admin.create_subject') }}" class="btn btn-info w-100 mb-2">
+                    <i class="fas fa-book"></i> Add Subject
+                </a>
+            </div>
+        </div>
+        
+        <!-- System Info -->
+        <div class="card mt-3">
+            <div class="card-header bg-secondary text-white">
+                <h6 class="mb-0"><i class="fas fa-info-circle"></i> System Info</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <strong>Total Users:</strong> {{ stats.total_users }}<br>
+                    <strong>Total Classes:</strong> {{ stats.total_classes }}<br>
+                    <strong>Total Tasks:</strong> {{ stats.total_tasks }}<br>
+                    <strong>Overdue Tasks:</strong> {{ stats.overdue_tasks }}
+                </small>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Recent Tasks</h5>
-            </div>
-            <div class="card-body">
-                {% if recent_tasks %}
-                    <ul class="list-unstyled">
-                        {% for task in recent_tasks %}
-                        <li class="mb-2">
-                            <strong>{{ task.title[:30] }}{% if task.title|length > 30 %}...{% endif %}</strong>
-                            <small class="text-muted d-block">by {{ task.creator.name }}</small>
-                            <small class="badge bg-{{ 'danger' if task.priority == 'urgent_important' else 'warning' if task.priority in ['high_priority', 'urgent_not_important'] else 'info' }}">
-                                {{ task.priority.replace('_', ' ').title() }}
-                            </small>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted">No recent tasks</p>
-                {% endif %}
-            </div>
+    
+    <!-- Main Content Area -->
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Admin Dashboard</h1>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Recent Submissions</h5>
-            </div>
-            <div class="card-body">
-                {% if recent_submissions %}
-                    <ul class="list-unstyled">
-                        {% for submission in recent_submissions %}
-                        <li class="mb-2">
-                            <strong>Assignment #{{ submission.assignment.id }}</strong>
-                            <small class="text-muted d-block">by {{ submission.assignment.student.name }}</small>
-                            <small class="text-muted">{{ submission.submitted_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted">No recent submissions</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Quick Actions -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Quick Actions</h5>
+        <!-- System Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div class="card-text">
+                                <h5 class="card-title">Total Users</h5>
+                                <h2>{{ stats.total_users }}</h2>
+                                <small>{{ weekly_stats.new_users }} new this week</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-2">
-                        <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary w-100 mb-2">
-                            <i class="bi bi-person-plus"></i> Add User
-                        </a>
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div class="card-text">
+                                <h5 class="card-title">Total Classes</h5>
+                                <h2>{{ stats.total_classes }}</h2>
+                                <small>Active classes</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-house-door" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <a href="{{ url_for('admin.manage_classes') }}" class="btn btn-secondary w-100 mb-2">
-                            <i class="bi bi-house-door"></i> Manage Classes
-                        </a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div class="card-text">
+                                <h5 class="card-title">Total Tasks</h5>
+                                <h2>{{ stats.total_tasks }}</h2>
+                                <small>{{ weekly_stats.new_tasks }} new this week</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-clipboard-check" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <a href="{{ url_for('admin.manage_subjects') }}" class="btn btn-info w-100 mb-2">
-                            <i class="bi bi-book"></i> Manage Subjects
-                        </a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div class="card-text">
+                                <h5 class="card-title">Submissions</h5>
+                                <h2>{{ stats.total_submissions }}</h2>
+                                <small>{{ weekly_stats.new_submissions }} new this week</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-file-earmark-text" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <a href="{{ url_for('admin.manage_tasks') }}" class="btn btn-warning w-100 mb-2">
-                            <i class="bi bi-clipboard-data"></i> Manage Tasks
-                        </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Stats Row -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div class="card-text">
+                                <h5 class="card-title">Overdue Tasks</h5>
+                                <h2>{{ stats.overdue_tasks }}</h2>
+                                <small>Need attention</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <a href="{{ url_for('admin.analytics') }}" class="btn btn-info w-100 mb-2">
-                            <i class="bi bi-graph-up-arrow"></i> View Analytics
-                        </a>
+                </div>
+            </div>
+            <!-- User Distribution -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">User Distribution</h5>
                     </div>
-                    <div class="col-md-3">
-                        <a href="{{ url_for('admin.create_notification') }}" class="btn btn-success w-100 mb-2">
-                            <i class="bi bi-bell"></i> Send Alert
-                        </a>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h3 class="text-primary">{{ stats.total_teachers }}</h3>
+                                <small>Teachers</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 class="text-success">{{ stats.total_students }}</h3>
+                                <small>Students</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 class="text-warning">1</h3>
+                                <small>Admin</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Assignment Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h3 class="text-success">{{ stats.completed_assignments }}</h3>
+                                <small>Completed</small>
+                            </div>
+                            <div class="col-6">
+                                <h3 class="text-secondary">{{ stats.total_assignments - stats.completed_assignments }}</h3>
+                                <small>Pending</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Users</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_users %}
+                            <ul class="list-unstyled">
+                                {% for user in recent_users %}
+                                <li class="mb-2">
+                                    <strong>{{ user.name }}</strong>
+                                    <small class="text-muted d-block">{{ user.email }}</small>
+                                    <small class="badge bg-{{ 'primary' if user.user_type == 'teacher' else 'success' if user.user_type == 'student' else 'warning' }}">
+                                        {{ user.user_type.title() }}
+                                    </small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">No recent users</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Tasks</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_tasks %}
+                            <ul class="list-unstyled">
+                                {% for task in recent_tasks %}
+                                <li class="mb-2">
+                                    <strong>{{ task.title[:30] }}{% if task.title|length > 30 %}...{% endif %}</strong>
+                                    <small class="text-muted d-block">by {{ task.creator.name }}</small>
+                                    <small class="badge bg-{{ 'danger' if task.priority == 'urgent_important' else 'warning' if task.priority in ['high_priority', 'urgent_not_important'] else 'info' }}">
+                                        {{ task.priority.replace('_', ' ').title() }}
+                                    </small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">No recent tasks</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Submissions</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_submissions %}
+                            <ul class="list-unstyled">
+                                {% for submission in recent_submissions %}
+                                <li class="mb-2">
+                                    <strong>Assignment #{{ submission.assignment.id }}</strong>
+                                    <small class="text-muted d-block">by {{ submission.assignment.student.name }}</small>
+                                    <small class="text-muted">{{ submission.submitted_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">No recent submissions</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

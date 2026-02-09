@@ -18,7 +18,6 @@ class TeacherRegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    classes = SelectMultipleField('Classes to Teach', choices=[], validators=[DataRequired()], coerce=int)
     submit = SubmitField('Register as Teacher')
 
     def validate_email(self, email):
@@ -67,7 +66,9 @@ class TaskForm(FlaskForm):
                     'Only document, presentation, and image files allowed!'),
         FileSize(max_size=20*1024*1024, message='File size must be less than 20MB!')
     ])
-    assigned_classes = SelectMultipleField('Assign to Classes', choices=[], validators=[DataRequired()], coerce=int)
+    assigned_classes = SelectMultipleField('Assign to Classes', choices=[], validators=[], coerce=int)
+    assigned_students = SelectMultipleField('Assign to Specific Students (Optional)', choices=[], validators=[], coerce=int)
+    assigned_teacher_id = SelectField('Assign to Teacher (Optional - for Admin)', choices=[('', 'None')], coerce=lambda x: int(x) if x else None)
     submit = SubmitField('Create Task')
 
 class AssignmentForm(FlaskForm):
@@ -90,8 +91,9 @@ class AdminUserForm(FlaskForm):
         ('teacher', 'Teacher'),
         ('student', 'Student')
     ], validators=[DataRequired()])
-    subject = StringField('Subject (for Teachers)')
     class_id = SelectField('Class (for Students)', choices=[], coerce=int)
+    teaching_classes = SelectMultipleField('Classes to Teach (for Teachers)', choices=[], validators=[], coerce=int)
+    teaching_subjects = SelectMultipleField('Subjects to Teach (for Teachers)', choices=[], validators=[], coerce=int)
     new_password = PasswordField('New Password (leave empty to keep current)')
     new_password2 = PasswordField('Confirm New Password', validators=[EqualTo('new_password')])
     submit = SubmitField('Update User')
@@ -150,3 +152,23 @@ class ClassForm(FlaskForm):
 class TeacherSubjectForm(FlaskForm):
     subjects = SelectMultipleField('Subjects You Teach', choices=[], validators=[], coerce=int)
     submit = SubmitField('Update Subjects')
+
+class AssignTeacherToSubjectForm(FlaskForm):
+    teacher_id = SelectField('Select Teacher', choices=[], validators=[DataRequired()], coerce=int)
+    submit = SubmitField('Assign Teacher')
+
+class ContactForm(FlaskForm):
+    name = StringField('Your Name', validators=[DataRequired(), Length(min=2, max=100)])
+    email = StringField('Email Address', validators=[DataRequired(), Email()])
+    subject = SelectField('Subject', choices=[
+        ('general', 'General Inquiry'),
+        ('support', 'Technical Support'),
+        ('bug', 'Bug Report'),
+        ('feature', 'Feature Request'),
+        ('partnership', 'Partnership')
+    ], validators=[DataRequired()])
+    message = TextAreaField('Message', validators=[DataRequired(), Length(min=10)])
+    submit = SubmitField('Send Message')
+
+    class Meta:
+        csrf = False

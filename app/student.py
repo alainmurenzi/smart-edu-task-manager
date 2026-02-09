@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, send_file
 from flask_login import login_required, current_user
 from app import db
-from models.models import Assignment, Submission
+from models.models import Assignment, Submission, Task, Class, User
 from .forms import SubmissionForm
 import os
 from werkzeug.utils import secure_filename
+from datetime import datetime
 
 student = Blueprint('student', __name__)
 
@@ -14,7 +15,59 @@ def dashboard():
     if current_user.user_type != 'student':
         return redirect(url_for('main.dashboard'))
     
+    # Get the student's class
+    student_class = current_user.student_class
+    
+    if student_class:
+        # Find tasks assigned to the student's class that haven't passed their deadline
+        current_time = datetime.utcnow()
+        class_tasks = Task.query.join(Task.assigned_classes).filter(
+            Class.id == student_class.id,
+            Task.deadline > current_time  # Only tasks that haven't passed deadline
+        ).all()
+        
+        # Create assignments for tasks that don't have one for this student
+        new_assignments = []
+        for task in class_tasks:
+            existing_assignment = Assignment.query.filter_by(
+                task_id=task.id,
+                student_id=current_user.id
+            ).first()
+            
+            if not existing_assignment:
+                # Create new assignment for this student
+                assignment = Assignment(
+                    task_id=task.id,
+                    student_id=current_user.id,
+                    status='pending'
+                )
+                db.session.add(assignment)
+                new_assignments.append(task)
+        
+        db.session.commit()
+        
+        # Create notifications for new assignments
+        from app.notifications import notify_task_assigned
+        for task in new_assignments:
+            creator = User.query.get(task.created_by)
+            teacher_name = creator.name if creator else 'Your teacher'
+            notify_task_assigned(current_user.id, task.title, teacher_name)
+    
+    # Get all assignments for the student
     assignments = Assignment.query.filter_by(student_id=current_user.id).all()
+    
+    # Filter out assignments where the task has passed deadline
+    valid_assignments = []
+    current_time = datetime.utcnow()
+    for assignment in assignments:
+        if assignment.task and assignment.task.deadline > current_time:
+            valid_assignments.append(assignment)
+        elif not assignment.task:
+            # Task was deleted, remove the assignment
+            db.session.delete(assignment)
+    
+    db.session.commit()
+    
     # Sort by priority and deadline
     priority_order = {
         'urgent_important': 1,
@@ -29,9 +82,16 @@ def dashboard():
         'not_important_not_urgent': 10
     }
     
-    assignments.sort(key=lambda x: (priority_order.get(x.task.priority, 99), x.task.deadline))
+    valid_assignments.sort(key=lambda x: (priority_order.get(x.task.priority, 99), x.task.deadline))
     
-    return render_template('student_dashboard.html', assignments=assignments)
+    # Get count of students in the same class
+    class_students_count = 0
+    if student_class:
+        class_students_count = User.query.filter_by(class_id=student_class.id).count()
+    
+    return render_template('student_dashboard.html', 
+                           assignments=valid_assignments,
+                           class_students_count=class_students_count)
 
 @student.route('/task/<int:assignment_id>')
 @login_required

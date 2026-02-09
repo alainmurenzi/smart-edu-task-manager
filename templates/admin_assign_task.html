@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h2>Assign Task: {{ task.title }}</h2>
+        <p class="text-muted">Assign this existing task to students, classes, teachers, or other admins.</p>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Task Details</h5>
+                <p><strong>Description:</strong> {{ task.description }}</p>
+                <p><strong>Deadline:</strong> {{ task.deadline.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p><strong>Priority:</strong> <span class="badge bg-{{ 'danger' if task.priority == 'urgent_important' else 'warning' if task.priority in ['high_priority', 'urgent_not_important'] else 'info' }}">{{ task.priority.replace('_', ' ').title() }}</span></p>
+                <p><strong>Already Assigned:</strong> {{ task.assignments|length }} student(s)</p>
+            </div>
+        </div>
+        
+        <form method="POST">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Assign to Students</h5>
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                        <div class="row">
+                            {% for student in students %}
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="assign_students" 
+                                           value="{{ student.id }}" 
+                                           id="student_{{ student.id }}"
+                                           {{ 'checked' if student.id in assigned_student_ids else '' }}>
+                                    <label class="form-check-label" for="student_{{ student.id }}">
+                                        {{ student.name }}
+                                        <small class="text-muted d-block">
+                                            {% if student.student_class %}
+                                                {{ student.student_class.name }}
+                                            {% else %}
+                                                No class
+                                            {% endif %}
+                                        </small>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No students available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Assign to Classes</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">All students in selected classes will be assigned this task.</p>
+                    {% if classes %}
+                        <div class="row">
+                            {% for class in classes %}
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="assign_classes" 
+                                           value="{{ class.id }}" 
+                                           id="class_{{ class.id }}">
+                                    <label class="form-check-label" for="class_{{ class.id }}">
+                                        {{ class.name }}
+                                        <small class="text-muted d-block">
+                                            {{ class.students|length }} student(s)
+                                        </small>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No classes available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Notify Teachers</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Teachers will be notified when tasks are assigned to their classes.</p>
+                    {% if teachers %}
+                        <div class="row">
+                            {% for teacher in teachers %}
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="assign_teachers" value="{{ teacher.id }}" id="teacher_{{ teacher.id }}">
+                                    <label class="form-check-label" for="teacher_{{ teacher.id }}">
+                                        {{ teacher.name }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No teachers available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Notify Other Admins</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Other administrators can be notified about this task assignment.</p>
+                    {% if admins %}
+                        <div class="row">
+                            {% for admin in admins %}
+                            {% if admin.id != current_user.id %}
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="assign_admins" value="{{ admin.id }}" id="admin_{{ admin.id }}">
+                                    <label class="form-check-label" for="admin_{{ admin.id }}">
+                                        {{ admin.name }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No other admins available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-plus"></i> Assign Task
+                </button>
+                <a href="{{ url_for('admin.manage_tasks') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

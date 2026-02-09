@@ -297,3 +297,47 @@ POST   /api/notifications/mark-all-read - Mark all notifications as read
 - Database migration
 - SSL/TLS termination
 - Environment-specific configurations
+
+---
+
+## Branding and Visual Identity
+
+### Logo Design (2026 Update)
+The platform features a modern logo representing the "SETM" acronym:
+
+| Component | Description | Color |
+|-----------|-------------|--------|
+| **S** | First letter | Red (#ef4444) |
+| **E** | Second letter | Green (#22c55e) |
+| **T** | Third letter | Blue (#3b82f6) |
+| **M** | Fourth letter | Purple (#8b5cf6) |
+
+**Logo Specifications:**
+- Format: SVG (Scalable Vector Graphics)
+- Location: `static/logo.svg`
+- Design: Four uniform colored circles in a horizontal row
+- Each letter centered within its colored circle
+
+### Favicon
+- Format: SVG
+- Location: `static/favicon.svg`
+- Design: Green circle with white checkmark and "EDU" text
+
+### UI Theme Updates (2026)
+- Base font size: 18px (increased from 16px for better readability)
+- Table styling: Black font with light gray headers
+- Status badges: Color-coded for quick visual identification
+- Responsive design: Logo visible at 85px height on all screen sizes
+
+### Teacher Dashboard Performance Table
+The student performance table displays:
+| Column | Description |
+|--------|-------------|
+| Student Name | Student's full name |
+| Class | Student's assigned class |
+| Total Tasks | Number of tasks assigned |
+| Completed | Tasks completed (green badge) |
+| In Progress | Tasks in progress (blue badge) |
+| Overdue | Overdue tasks (red badge) |
+| Completion Rate | Progress bar with percentage |
+| Status | Performance status badge |

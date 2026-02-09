@@ -52,8 +52,15 @@
                 {{ form.assigned_classes(class="form-select", multiple=True, size=5) }}
                 <small class="form-text text-muted">
                     <i class="fas fa-info-circle"></i> <strong>Multi-Select:</strong> Hold Ctrl (or Cmd) to select multiple classes.
-                    All students in the selected classes will be assigned this task.
-                    <br><strong>Tip:</strong> You can also create the task first and assign classes later using the "Assign Task" option.
+                    If no specific students are selected, all students in the selected classes will be assigned this task.
+                </small>
+            </div>
+            <div class="mb-3">
+                {{ form.assigned_students.label(class="form-label") }}
+                {{ form.assigned_students(class="form-select", multiple=True, size=5) }}
+                <small class="form-text text-muted">
+                    <i class="fas fa-user-graduate"></i> <strong>Specific Students (Optional):</strong> Hold Ctrl (or Cmd) to select specific students.
+                    If students are selected, the task will only be assigned to those students (class selection will be ignored).
                 </small>
             </div>
             {{ form.submit(class="btn btn-primary") }}

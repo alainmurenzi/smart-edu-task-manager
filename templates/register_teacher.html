@@ -34,20 +34,12 @@
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="mb-3">
-                {{ form.classes.label(class="form-label") }}
-                {{ form.classes(class="form-control", multiple=True, size=5, id="classes") }}
-                {% for error in form.classes.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-                <small class="form-text text-muted">Hold Ctrl (Cmd on Mac) to select multiple classes</small>
-            </div>
-
             <div class="alert alert-info mt-3">
-                <strong>Note:</strong> After registration, you will be able to specify which subjects you teach for each class through your teacher dashboard.
+                <strong>Note:</strong> After registration, an administrator will need to assign classes to you before you can start teaching.
             </div>
             {{ form.submit(class="btn btn-primary") }}
         </form>
+        <p class="mt-3">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
     </div>
 </div>
 {% endblock %}

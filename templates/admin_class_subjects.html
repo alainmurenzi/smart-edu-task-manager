@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Class Subjects: {{ class_obj.name }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('admin.manage_classes') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Classes
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-book"></i> Subjects in {{ class_obj.name }}</h5>
+            </div>
+            <div class="card-body">
+                {% if subjects %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Subject Name</th>
+                                <th>Description</th>
+                                <th>Assigned Teachers</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for subject in subjects %}
+                            <tr>
+                                <td><strong>{{ subject.name }}</strong></td>
+                                <td>{{ subject.description or '-' }}</td>
+                                <td>
+                                    {% set assigned_teachers = [] %}
+                                    {% for teacher in subject.teaching_teachers %}
+                                        {% if class_obj in teacher.teaching_classes %}
+                                            {% set _ = assigned_teachers.append(teacher) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if assigned_teachers %}
+                                        {% for teacher in assigned_teachers %}
+                                            <div class="d-flex align-items-center mb-1">
+                                                <span class="badge bg-success me-2">{{ teacher.name }}</span>
+                                                <form method="POST" action="{{ url_for('admin.remove_teacher_from_subject', class_id=class_obj.id, subject_id=subject.id, teacher_id=teacher.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove {{ teacher.name }} from this subject?')">
+                                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Remove teacher">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">No teachers assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin.assign_teacher_to_subject', class_id=class_obj.id, subject_id=subject.id) }}" class="d-flex align-items-center">
+                                        {{ forms[subject.id].hidden_tag() }}
+                                        <div class="me-2">
+                                            {{ forms[subject.id].teacher_id(class="form-select form-select-sm", style="min-width: 200px;") }}
+                                        </div>
+                                        {{ forms[subject.id].submit(class="btn btn-sm btn-primary") }}
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <h5>No subjects found</h5>
+                    <p>This class doesn't have any subjects yet. <a href="{{ url_for('admin.create_subject') }}">Create a subject</a> and assign it to this class.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Class Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Class Name:</strong> {{ class_obj.name }}</p>
+                <p><strong>Description:</strong> {{ class_obj.description or 'No description' }}</p>
+                <p><strong>Total Students:</strong> {{ class_obj.students|length }}</p>
+                <p><strong>Total Teachers:</strong> {{ class_obj.teachers|length }}</p>
+                <p><strong>Total Subjects:</strong> {{ subjects|length }}</p>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-people"></i> Available Teachers</h5>
+            </div>
+            <div class="card-body">
+                {% if teachers %}
+                <ul class="list-group list-group-flush">
+                    {% for teacher in teachers %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ teacher.name }}
+                        <span class="badge bg-primary rounded-pill">{{ teacher.selected_subjects|length }} subjects</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">No teachers available. <a href="{{ url_for('admin.create_user') }}">Create a teacher</a> first.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('admin.manage_classes') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Classes
+    </a>
+    <a href="{{ url_for('admin.create_subject') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add New Subject
+    </a>
+</div>
+{% endblock %}

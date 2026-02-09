@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}FAQs - SMART Edu Task Manager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h2 class="mb-0"><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h2>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-comments text-warning" style="font-size: 4rem;"></i>
+                    <h3 class="mt-3">How Can We Help You?</h3>
+                    <p class="lead text-muted">Find answers to common questions about SMART Edu Task Manager</p>
+                </div>
+                
+                <hr>
+                
+                <!-- Search FAQ -->
+                <div class="row mb-4">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" placeholder="Search for answers...">
+                            <button class="btn btn-primary" type="button">Search</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- General Questions -->
+                <div class="mb-4">
+                    <h4 class="text-primary"><i class="fas fa-info-circle me-2"></i>General Questions</h4>
+                    
+                    <div class="accordion" id="accordionGeneral">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                    What is SMART Edu Task Manager?
+                                </button>
+                            </h2>
+                            <div id="collapse1" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                                <div class="accordion-body">
+                                    SMART Edu Task Manager is a comprehensive web-based platform designed to streamline task management in educational institutions. It connects administrators, teachers, and students, allowing for efficient task creation, assignment, submission, and tracking.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                    Who can use SMART Edu Task Manager?
+                                </button>
+                            </h2>
+                            <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                                <div class="accordion-body">
+                                    The platform is designed for three types of users:
+                                    <ul>
+                                        <li><strong>Administrators:</strong> Manage users, classes, subjects, and view analytics</li>
+                                        <li><strong>Teachers:</strong> Create tasks, assign them to students, and review submissions</li>
+                                        <li><strong>Students:</strong> View assigned tasks, submit completed work, and track progress</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                    Is SMART Edu Task Manager free to use?
+                                </button>
+                            </h2>
+                            <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                                <div class="accordion-body">
+                                    Yes, SMART Edu Task Manager is completely free to use for educational institutions. There are no hidden fees or premium features.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Account & Registration -->
+                <div class="mb-4">
+                    <h4 class="text-success"><i class="fas fa-user-plus me-2"></i>Account & Registration</h4>
+                    
+                    <div class="accordion" id="accordionAccount">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                                    How do I register as a teacher?
+                                </button>
+                            </h2>
+                            <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                                <div class="accordion-body">
+                                    Click on "Register" in the navigation menu and select "As Teacher". Fill in your details and submit the form. Note that an administrator will need to assign classes to you before you can start creating tasks.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5">
+                                    How do I register as a student?
+                                </button>
+                            </h2>
+                            <div id="collapse5" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                                <div class="accordion-body">
+                                    Click on "Register" in the navigation menu and select "As Student". Fill in your details, including your class assignment. Once approved by an administrator, you'll be able to access your tasks.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6">
+                                    Can I reset my password?
+                                </button>
+                            </h2>
+                            <div id="collapse6" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                                <div class="accordion-body">
+                                    Yes, if you forget your password, contact your administrator who can help you reset it. For security reasons, password reset functionality is currently managed by administrators.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Using the Platform -->
+                <div class="mb-4">
+                    <h4 class="text-info"><i class="fas fa-tasks me-2"></i>Using the Platform</h4>
+                    
+                    <div class="accordion" id="accordionUsing">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7">
+                                    How do teachers create tasks?
+                                </button>
+                            </h2>
+                            <div id="collapse7" class="accordion-collapse collapse" data-bs-parent="#accordionUsing">
+                                <div class="accordion-body">
+                                    Teachers can create tasks by navigating to their dashboard and clicking "Create New Task". Fill in the task details including title, description, deadline, priority, and select the class and subject. You can also attach files to the task.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse8">
+                                    How do students submit tasks?
+                                </button>
+                            </h2>
+                            <div id="collapse8" class="accordion-collapse collapse" data-bs-parent="#accordionUsing">
+                                <div class="accordion-body">
+                                    Students can view their assigned tasks on their dashboard. Click on "Submit" for the relevant task, write your submission text or upload files, and click "Submit Assignment".
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse9">
+                                    How do teachers review submissions?
+                                </button>
+                            </h2>
+                            <div id="collapse9" class="accordion-collapse collapse" data-bs-parent="#accordionUsing">
+                                <div class="accordion-body">
+                                    Teachers can click "Review" on any task they've created to see all student submissions. They can then grade or provide feedback on each submission.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse10">
+                                    What task priorities are available?
+                                </button>
+                            </h2>
+                            <div id="collapse10" class="accordion-collapse collapse" data-bs-parent="#accordionUsing">
+                                <div class="accordion-body">
+                                    Tasks can be assigned one of four priority levels:
+                                    <ul>
+                                        <li><strong>Urgent & Important:</strong> Must be completed immediately</li>
+                                        <li><strong>High Priority:</strong> Should be completed soon</li>
+                                        <li><strong</strong> Standard tasks>Medium Priority:</li>
+                                        <li><strong>Low Priority:</strong> Optional or long-term tasks</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Technical Support -->
+                <div class="mb-4">
+                    <h4 class="text-warning"><i class="fas fa-cogs me-2"></i>Technical Support</h4>
+                    
+                    <div class="accordion" id="accordionTechnical">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse11">
+                                    What browsers are supported?
+                                </button>
+                            </h2>
+                            <div id="collapse11" class="accordion-collapse collapse" data-bs-parent="#accordionTechnical">
+                                <div class="accordion-body">
+                                    SMART Edu Task Manager works best on modern browsers including Chrome, Firefox, Safari, and Edge. We recommend keeping your browser updated to the latest version.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse12">
+                                    What file formats can be uploaded?
+                                </button>
+                            </h2>
+                            <div id="collapse12" class="accordion-collapse collapse" data-bs-parent="#accordionTechnical">
+                                <div class="accordion-body">
+                                    The platform supports common file formats including PDF, DOCX, images (JPG, PNG), and text files. The maximum file size is 16MB per upload.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse13">
+                                    How do I report a technical issue?
+                                </button>
+                            </h2>
+                            <div id="collapse13" class="accordion-collapse collapse" data-bs-parent="#accordionTechnical">
+                                <div class="accordion-body">
+                                    If you encounter any technical issues, please contact our support team:
+                                    <ul>
+                                        <li><strong>Phone:</strong> +48 452 946 767</li>
+                                        <li><strong>Email:</strong> alainmurenzi@example.com</li>
+                                    </ul>
+                                    Please provide details about the issue including browser type, steps to reproduce, and screenshots if possible.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Still Have Questions -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card bg-light border-0">
+                            <div class="card-body text-center">
+                                <i class="fas fa-life-ring text-warning" style="font-size: 3rem;"></i>
+                                <h4 class="mt-3">Still Have Questions?</h4>
+                                <p class="text-muted">Can't find what you're looking for? Contact us directly.</p>
+                                <a href="{{ url_for('main.contacts') }}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-envelope me-2"></i>Contact Support
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row mt-4">
+                    <div class="col-md-12 text-center">
+                        <p class="text-muted">
+                            <small>© 2024 SMART Edu Task Manager. All rights reserved.</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

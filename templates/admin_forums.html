@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-comments"></i> Forum Management</h2>
+            <p class="text-muted">Monitor and manage all forum discussions</p>
+        </div>
+        <div class="col-md-4 text-right">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Teacher Forum -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> Teachers Forum</h5>
+                </div>
+                <div class="card-body">
+                    {% if teacher_room %}
+                        <p><strong>Messages:</strong> {{ teacher_room.messages|length }}</p>
+                        <p><strong>Status:</strong> <span class="badge badge-success">Active</span></p>
+                        <a href="{{ url_for('forum.admin_view_forum', room_id=teacher_room.id) }}" class="btn btn-success">
+                            <i class="fas fa-eye"></i> View Messages
+                        </a>
+                    {% else %}
+                        <p class="text-muted">No teacher forum created yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Class Forums -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-users"></i> Class Forums</h5>
+                </div>
+                <div class="card-body">
+                    {% if class_rooms %}
+                        <p><strong>Total Class Forums:</strong> {{ class_rooms|length }}</p>
+                        <ul class="list-group">
+                            {% for room in class_rooms %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>{{ room.name }}</span>
+                                    <div>
+                                        <span class="badge badge-primary badge-pill mr-2">{{ room.messages|length }} msgs</span>
+                                        <a href="{{ url_for('forum.admin_view_forum', room_id=room.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No class forums created yet. Forums are created when students first access them.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forum Statistics -->
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Forum Statistics</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <h3>{{ class_rooms|length + (1 if teacher_room else 0) }}</h3>
+                    <p class="text-muted">Total Forums</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>{% set total_messages = 0 %}{% for room in class_rooms %}{% set total_messages = total_messages + room.messages|length %}{% endfor %}{% if teacher_room %}{% set total_messages = total_messages + teacher_room.messages|length %}{% endif %}{{ total_messages }}</h3>
+                    <p class="text-muted">Total Messages</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>{{ class_rooms|length }}</h3>
+                    <p class="text-muted">Class Forums</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>{{ 1 if teacher_room else 0 }}</h3>
+                    <p class="text-muted">Teacher Forum</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="card mt-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="fas fa-cogs"></i> Administration</h5>
+        </div>
+        <div class="card-body">
+            <p>As an administrator, you can:</p>
+            <ul>
+                <li>View all messages in any forum</li>
+                <li>Delete inappropriate messages</li>
+                <li>Monitor class discussions</li>
+                <li>Review teacher communications</li>
+            </ul>
+            <p class="text-muted"><small><i class="fas fa-info-circle"></i> All forum activities are logged and accessible for review.</small></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

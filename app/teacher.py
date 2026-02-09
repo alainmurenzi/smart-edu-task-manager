@@ -16,10 +16,35 @@ def dashboard():
     if current_user.user_type != 'teacher':
         return redirect(url_for('main.dashboard'))
 
+    # Get tasks created by this teacher
     tasks = Task.query.filter_by(created_by=current_user.id).all()
+    
+    # Get tasks assigned to this teacher by admin
+    assigned_tasks = Task.query.filter_by(assigned_teacher_id=current_user.id).all()
+    
+    # Combine both lists
+    all_tasks = list(tasks) + list(assigned_tasks)
+    
+    # Remove duplicates based on task ID
+    unique_tasks = {}
+    for task in all_tasks:
+        if task.id not in unique_tasks:
+            unique_tasks[task.id] = task
+    tasks = list(unique_tasks.values())
 
-    # Get students from the teacher's classes only
-    teacher_classes = current_user.teaching_classes
+    # Get teacher's classes from teacher_class_subjects table
+    teacher_classes = []
+    class_subject_mapping = db.session.query(teacher_class_subjects).filter_by(teacher_id=current_user.id).all()
+    for tc in class_subject_mapping:
+        class_obj = Class.query.get(tc.class_id)
+        if class_obj and class_obj not in teacher_classes:
+            teacher_classes.append(class_obj)
+    
+    # Also get from teaching_classes relationship (backwards compatibility)
+    for class_obj in current_user.teaching_classes:
+        if class_obj not in teacher_classes:
+            teacher_classes.append(class_obj)
+
     students = []
     for class_obj in teacher_classes:
         students.extend(class_obj.students)
@@ -45,13 +70,27 @@ def dashboard():
 
     # Get teacher's classes with subject information
     teacher_classes_info = []
-    selected_subject_ids = [s.id for s in current_user.selected_subjects]
 
     for class_obj in teacher_classes:
         # Get subjects available in this class
         available_subjects = class_obj.subjects
-        # Get subjects the teacher has selected to teach
-        teaching_subjects = [s for s in available_subjects if s.id in selected_subject_ids]
+        # Get subjects the teacher is assigned to teach in this class (from teacher_class_subjects table)
+        teaching_subjects = []
+        for subject in available_subjects:
+            # Check if there's an entry in teacher_class_subjects for this teacher, class, and subject
+            entry = db.session.query(teacher_class_subjects).filter_by(
+                teacher_id=current_user.id, 
+                class_id=class_obj.id, 
+                subject_id=subject.id
+            ).first()
+            if entry:
+                teaching_subjects.append(subject)
+        
+        # Also include subjects from selected_subjects (for backwards compatibility)
+        selected_subject_ids = [s.id for s in current_user.selected_subjects]
+        for subject in available_subjects:
+            if subject.id in selected_subject_ids and subject not in teaching_subjects:
+                teaching_subjects.append(subject)
 
         teacher_classes_info.append({
             'class': class_obj,
@@ -59,7 +98,9 @@ def dashboard():
             'teaching_subjects': teaching_subjects,
             'student_count': len(class_obj.students)
         })
-
+    
+    print(f"DEBUG: Teacher {current_user.name} has {len(teacher_classes_info)} classes")
+    
     return render_template('teacher_dashboard.html',
                          tasks=tasks,
                          student_stats=student_stats,
@@ -114,10 +155,29 @@ def create_task():
         return redirect(url_for('main.dashboard'))
 
     # Get classes that the teacher teaches
-    teacher_classes = current_user.teaching_classes
+    teacher_classes = []
+    
+    # First, check teacher_class_subjects table (new way)
+    class_subject_mapping = db.session.query(teacher_class_subjects).filter_by(teacher_id=current_user.id).all()
+    for tc in class_subject_mapping:
+        class_obj = Class.query.get(tc.class_id)
+        if class_obj and class_obj not in teacher_classes:
+            teacher_classes.append(class_obj)
+    
+    # Also check teaching_classes relationship (backwards compatibility)
+    for class_obj in current_user.teaching_classes:
+        if class_obj not in teacher_classes:
+            teacher_classes.append(class_obj)
+    
+    # Get all students from teacher's classes
+    students = []
+    for class_obj in teacher_classes:
+        students.extend(class_obj.students)
+    students = list(set(students))
 
     form = TaskForm()
-    form.assigned_classes.choices = [(str(c.id), c.name) for c in teacher_classes]
+    form.assigned_classes.choices = [(c.id, c.name) for c in teacher_classes]
+    form.assigned_students.choices = [(s.id, f"{s.name} ({s.student_class.name if s.student_class else 'No class'})") for s in students]
     suggested_priority = None
 
     if form.validate_on_submit():
@@ -149,30 +209,65 @@ def create_task():
         db.session.add(task)
         db.session.commit()
 
-        # Create assignments for students in selected classes
+        # Add assigned classes to the task (for tracking which classes the task is assigned to)
         if form.assigned_classes.data:
-            assigned_students = []
             for class_id in form.assigned_classes.data:
                 class_obj = Class.query.get(int(class_id))
-                if class_obj:
-                    for student in class_obj.students:
+                if class_obj and class_obj not in task.assigned_classes:
+                    task.assigned_classes.append(class_obj)
+            db.session.commit()
+
+        # Create assignments for students
+        assigned_students = []
+        
+        # First, assign to specific students if selected
+        if form.assigned_students.data:
+            for student_id in form.assigned_students.data:
+                student = User.query.get(int(student_id))
+                if student:
+                    # Check if assignment already exists
+                    existing = Assignment.query.filter_by(task_id=task.id, student_id=student.id).first()
+                    if not existing:
                         assignment = Assignment(
                             task_id=task.id,
                             student_id=student.id
                         )
                         db.session.add(assignment)
                         assigned_students.append(student.id)
-            db.session.commit()
+        
+        # Then, assign to students in selected classes (if no specific students selected)
+        if not form.assigned_students.data and form.assigned_classes.data:
+            for class_id in form.assigned_classes.data:
+                class_obj = Class.query.get(int(class_id))
+                if class_obj:
+                    for student in class_obj.students:
+                        # Check if assignment already exists
+                        existing = Assignment.query.filter_by(task_id=task.id, student_id=student.id).first()
+                        if not existing:
+                            assignment = Assignment(
+                                task_id=task.id,
+                                student_id=student.id
+                            )
+                            db.session.add(assignment)
+                            assigned_students.append(student.id)
+        
+        db.session.commit()
 
-            # Create notifications for assigned students
-            from app.notifications import notify_task_assigned
-            for student_id in assigned_students:
-                student = User.query.get(student_id)
-                if student:
-                    notify_task_assigned(student_id, task.title, current_user.name)
+        # Create notifications for assigned students
+        from app.notifications import notify_task_assigned
+        for student_id in assigned_students:
+            student = User.query.get(student_id)
+            if student:
+                notify_task_assigned(student_id, task.title, current_user.name)
 
-        flash('Task created successfully!')
+        flash('Task created successfully!', 'success')
         return redirect(url_for('teacher.dashboard'))
+    else:
+        # Form validation failed - show errors
+        if request.method == 'POST':
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f'{field}: {error}', 'danger')
 
     # Get suggestion for display
     if form.description.data:

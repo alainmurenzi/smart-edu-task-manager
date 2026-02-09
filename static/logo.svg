@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <!-- SETM in uniform circles - all characters properly centered -->
+  <!-- S - Red -->
+  <circle cx="30" cy="40" r="22" fill="#ef4444"/>
+  <text x="30" y="47" text-anchor="middle" fill="white" font-size="24" font-weight="bold" font-family="Arial">S</text>
+  
+  <!-- E - Green -->
+  <circle cx="77" cy="40" r="22" fill="#22c55e"/>
+  <text x="77" y="47" text-anchor="middle" fill="white" font-size="24" font-weight="bold" font-family="Arial">E</text>
+  
+  <!-- T - Blue -->
+  <circle cx="124" cy="40" r="22" fill="#3b82f6"/>
+  <text x="124" y="47" text-anchor="middle" fill="white" font-size="24" font-weight="bold" font-family="Arial">T</text>
+  
+  <!-- M - Purple -->
+  <circle cx="171" cy="40" r="22" fill="#8b5cf6"/>
+  <text x="171" y="47" text-anchor="middle" fill="white" font-size="24" font-weight="bold" font-family="Arial">M</text>
+</svg>

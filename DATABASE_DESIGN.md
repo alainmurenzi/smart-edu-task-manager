@@ -364,3 +364,155 @@ The SMART Edu Task Manager uses SQLite as its primary database with SQLAlchemy O
 - Query execution time tracking
 - Slow query identification
 - Database size monitoring
+
+---
+
+## Additional Tables (2025-2026 Updates)
+
+### 6. teacher_class_subjects Table
+**Purpose:** Links teachers to classes and subjects they teach
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | INTEGER | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| teacher_id | INTEGER | NOT NULL, FOREIGN KEY | Teacher user ID |
+| class_id | INTEGER | NOT NULL, FOREIGN KEY | Class ID |
+| subject_id | INTEGER | NOT NULL, FOREIGN KEY | Subject ID |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Creation timestamp |
+
+**Relationships:**
+- Many teacher_class_subjects → One User (teacher)
+- Many teacher_class_subjects → One Class
+- Many teacher_class_subjects → One Subject
+
+### 7. task_classes Table
+**Purpose:** Links tasks to classes (many-to-many)
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| task_id | INTEGER | FOREIGN KEY | Task ID |
+| class_id | INTEGER | FOREIGN KEY | Class ID |
+
+**Relationships:**
+- Many task_classes → One Task
+- Many task_classes → One Class
+
+### 8. Forum Tables
+
+#### forum_threads Table
+**Purpose:** Forum discussion threads
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | INTEGER | PRIMARY KEY | Unique identifier |
+| title | VARCHAR(200) | NOT NULL | Thread title |
+| class_id | INTEGER | FOREIGN KEY | Associated class (nullable) |
+| created_by | INTEGER | FOREIGN KEY | Thread creator |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Creation time |
+
+#### forum_messages Table
+**Purpose:** Forum messages within threads
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | INTEGER | PRIMARY KEY | Unique identifier |
+| thread_id | INTEGER | FOREIGN KEY | Parent thread |
+| user_id | INTEGER | FOREIGN KEY | Message author |
+| content | TEXT | NOT NULL | Message content |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Creation time |
+| updated_at | DATETIME | NULL | Last update time |
+
+### 9. Contact Messages Table
+**Purpose:** Stores contact form submissions
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | INTEGER | PRIMARY KEY | Unique identifier |
+| name | VARCHAR(100) | NOT NULL | Sender's name |
+| email | VARCHAR(120) | NOT NULL | Sender's email |
+| subject | VARCHAR(200) | NOT NULL | Message subject |
+| message | TEXT | NOT NULL | Message content |
+| is_read | BOOLEAN | DEFAULT FALSE | Read status |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Submission time |
+
+### 10. Contact Messages Table
+**Purpose:** Stores contact form submissions
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | INTEGER | PRIMARY KEY | Unique identifier |
+| name | VARCHAR(100) | NOT NULL | Sender's name |
+| email | VARCHAR(120) | NOT NULL | Sender's email |
+| subject | VARCHAR(200) | NOT NULL | Message subject |
+| message | TEXT | NOT NULL | Message content |
+| is_read | BOOLEAN | DEFAULT FALSE | Read status |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Submission time |
+
+## Updated Entity Relationship Diagram (2026)
+
+```
+┌─────────────┐     ┌─────────────────────┐     ┌─────────────┐
+│    USER     │     │ TEACHER_CLASS_      │     │    CLASS    │
+├─────────────┤     │      SUBJECTS      │     ├─────────────┤
+│ id (PK)     │◄────┤ id (PK)           │────►│ id (PK)     │
+│ name        │     │ teacher_id (FK)    │     │ name        │
+│ email       │     │ class_id (FK)      │     │ created_at  │
+│ user_type   │     │ subject_id (FK)    │     └─────────────┘
+│ subject     │     │ created_at         │            │
+│ class_name  │     └─────────────────────┘            │
+│ created_at  │              │                          │
+└─────────────┘              │                          │
+        │                   │                          │
+        │                   ▼                          │
+        │     ┌─────────────────────┐                │
+        │     │      SUBJECT        │                │
+        │     ├─────────────────────┤                │
+        │     │ id (PK)            │                │
+        │     │ name               │                │
+        │     │ description         │                │
+        │     └─────────────────────┘                │
+        │                                            │
+        ▼                                            │
+┌─────────────┐     ┌─────────────┐                  │
+│    TASK     │────►│ TASK_       │                  │
+├─────────────┤     │  CLASSES    │                  │
+│ id (PK)     │     ├─────────────┤                  │
+│ title       │     │ task_id (FK)│                  │
+│ description │     │ class_id (FK)│──────────────────┘
+│ deadline    │     └─────────────┘
+│ priority    │              │
+│ created_by  │              ▼
+│ created_at  │     ┌─────────────┐     ┌─────────────┐
+└─────────────┘     │ ASSIGNMENT  │     │ SUBMISSION  │
+        │           ├─────────────┤     ├─────────────┤
+        │           │ task_id (FK)│     │ id (PK)     │
+        │           │ student_id  │     │ assignment_id│
+        │           │ status      │     │ content      │
+        │           │ assigned_at │     │ file_path    │
+        │           │ submitted_at│     │ submitted_at │
+        │           └─────────────┘     └─────────────┘
+        │                 │
+        │                 ▼
+        │           ┌─────────────┐
+        │           │ NOTIFICATION│
+        │           ├─────────────┤
+        │           │ user_id (FK)│
+        │           │ title       │
+        │           │ message     │
+        │           │ type        │
+        │           │ is_read     │
+        │           └─────────────┘
+        │
+        ▼
+┌─────────────────────┐
+│      FORUM          │
+├─────────────────────┤
+│ forum_threads       │
+│ forum_messages      │
+└─────────────────────┘
+```
+
+---
+
+**Document Version**: 2.0  
+**Last Updated**: February 8, 2026

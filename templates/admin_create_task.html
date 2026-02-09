@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h2>Create New Task (Admin)</h2>
+        <p class="text-muted">Create a task and assign it to students, classes, teachers, or other admins.</p>
+        
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Task Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control") }}
+                        {% for error in form.title.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=4) }}
+                        {% for error in form.description.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.deadline.label(class="form-label") }}
+                            {{ form.deadline(class="form-control", type="datetime-local") }}
+                            {% for error in form.deadline.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.priority.label(class="form-label") }}
+                            {{ form.priority(class="form-select") }}
+                            {% for error in form.priority.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            <small class="form-text text-muted">AI suggestion: <strong>{{ suggested_priority.replace('_', ' ').title() if suggested_priority else 'Medium Priority' }}</strong></small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.instructions.label(class="form-label") }}
+                        {{ form.instructions(class="form-control", rows=3) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.task_file.label(class="form-label") }}
+                        {{ form.task_file(class="form-control") }}
+                        <small class="form-text text-muted">Optional: Attach a file for students (PDF, DOC, DOCX, TXT, PPT, XLS, JPG, PNG up to 20MB)</small>
+                        {% for error in form.task_file.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Assign to Students</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.assigned_students.label(class="form-label") }}
+                        {{ form.assigned_students(class="form-select", multiple=True, size=5) }}
+                        <small class="form-text text-muted">
+                            <strong>Specific Students:</strong> Hold Ctrl (or Cmd) to select specific students.
+                            If students are selected, the task will only be assigned to those students.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Assign to Classes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.assigned_classes.label(class="form-label") }}
+                        {{ form.assigned_classes(class="form-select", multiple=True, size=5) }}
+                        <small class="form-text text-muted">
+                            <strong>Multi-Select:</strong> Hold Ctrl (or Cmd) to select multiple classes.
+                            If no specific students are selected, all students in the selected classes will be assigned this task.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Assign to Teacher</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.assigned_teacher_id.label(class="form-label") }}
+                        {{ form.assigned_teacher_id(class="form-select") }}
+                        <small class="form-text text-muted">
+                            <strong>Assign to Teacher:</strong> Select a specific teacher to assign this task to.
+                            The teacher will see this task in their dashboard.
+                        </small>
+                        {% for error in form.assigned_teacher_id.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Notify Teachers</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Teachers can be notified when tasks are assigned to their classes.</p>
+                    {% if teachers %}
+                        <div class="row">
+                            {% for teacher in teachers %}
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="notify_teachers" value="{{ teacher.id }}" id="teacher_{{ teacher.id }}">
+                                    <label class="form-check-label" for="teacher_{{ teacher.id }}">
+                                        {{ teacher.name }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No teachers available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Notify Other Admins</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Other administrators can be notified about this task.</p>
+                    {% if admins %}
+                        <div class="row">
+                            {% for admin in admins %}
+                            {% if admin.id != current_user.id %}
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="notify_admins" value="{{ admin.id }}" id="admin_{{ admin.id }}">
+                                    <label class="form-check-label" for="admin_{{ admin.id }}">
+                                        {{ admin.name }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No other admins available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                {{ form.submit(class="btn btn-primary btn-lg") }}
+                <a href="{{ url_for('admin.manage_tasks') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
