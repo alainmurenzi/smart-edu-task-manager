@@ -1,24 +1,52 @@
 import os
 import sys
-from flask import Flask, request, jsonify, make_response, send_from_directory
-from flask_cors import CORS
+import traceback
+
+print("Starting Vercel function...")
 
 # Add the parent directory to the Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-# Import your Flask app
-from app import create_app
+print(f"Python path: {sys.path}")
+print(f"Current dir: {current_dir}")
+print(f"Parent dir: {parent_dir}")
 
-# Create the Flask app instance
-flask_app = create_app()
+try:
+    from flask import Flask, request, jsonify, make_response, send_from_directory
+    from flask_cors import CORS
+    print("Flask imports successful")
+except Exception as e:
+    print(f"Flask import error: {e}")
+    traceback.print_exc()
+    raise
+
+try:
+    # Import your Flask app
+    from app import create_app
+    print("create_app import successful")
+except Exception as e:
+    print(f"create_app import error: {e}")
+    traceback.print_exc()
+    raise
+
+try:
+    # Create the Flask app instance
+    flask_app = create_app()
+    print("Flask app created successfully")
+except Exception as e:
+    print(f"create_app() error: {e}")
+    traceback.print_exc()
+    raise
 
 # Enable CORS for all routes
 CORS(flask_app)
 
 def handler(request):
     """Vercel serverless function handler"""
+    print(f"Handling request: {request.method} {request.path}")
+    
     # Handle OPTIONS requests for CORS
     if request.method == 'OPTIONS':
         response = make_response('')
@@ -42,9 +70,8 @@ def handler(request):
             
     except Exception as e:
         # Handle errors gracefully
-        import traceback
         error_msg = f"{str(e)}\n{traceback.format_exc()}"
-        print(f"Error: {error_msg}")  # Log to Vercel logs
+        print(f"Error: {error_msg}")
         
         return {
             'statusCode': 500,
