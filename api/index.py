@@ -28,14 +28,8 @@ def handler(request):
         return response
     
     try:
-        # Create a test request context
-        with flask_app.test_request_context(
-            path=request.path,
-            method=request.method,
-            headers=request.headers,
-            data=request.get_data(),
-            query_string=request.query
-        ):
+        # Set up the request context properly
+        with flask_app.request_context(request):
             # Get the response from the Flask app
             response = flask_app.full_dispatch_request()
             
@@ -48,17 +42,30 @@ def handler(request):
             
     except Exception as e:
         # Handle errors gracefully
+        import traceback
+        error_msg = f"{str(e)}\n{traceback.format_exc()}"
+        print(f"Error: {error_msg}")  # Log to Vercel logs
+        
         return {
             'statusCode': 500,
             'headers': {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/html',
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization'
             },
-            'body': jsonify({
-                'error': str(e),
-                'status': 'error',
-                'message': 'Internal server error'
-            })
+            'body': f'''
+            <!DOCTYPE html>
+            <html>
+            <head><title>Server Error</title></head>
+            <body>
+                <h1>500 - Internal Server Error</h1>
+                <p>{str(e)}</p>
+                <details>
+                    <summary>Traceback</summary>
+                    <pre>{traceback.format_exc()}</pre>
+                </details>
+            </body>
+            </html>
+            '''
         }
