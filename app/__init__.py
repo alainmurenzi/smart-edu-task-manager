@@ -9,21 +9,16 @@ login_manager = LoginManager()
 def create_app():
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-this-in-production'
-<<<<<<< HEAD
-    # Use absolute path to database in instance folder
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'smart_edu.db')
-=======
     
-    # Database configuration for Vercel deployment
+    # Database configuration
     database_url = os.environ.get('DATABASE_URL')
     if database_url:
         # Use PostgreSQL or other cloud database
         app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     else:
         # Fallback to SQLite for local development
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///smart_edu.db'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'smart_edu.db')
     
->>>>>>> 20d6cadbcc532909d2d934043a38f1396fab3925
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
     app.config['SESSION_COOKIE_SECURE'] = True  # Enable for production
