@@ -44,10 +44,30 @@ EXCEPTION
 END $$;
 
 -- ============================================
--- TABLES
+-- TABLES (Ordered by dependencies)
 -- ============================================
 
--- Users Table
+-- Classes Table (created first - no foreign keys)
+CREATE TABLE IF NOT EXISTS "class" (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT,
+    created_by INTEGER REFERENCES "user"(id) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_class_name ON "class"(name);
+
+-- Subjects Table (no foreign keys)
+CREATE TABLE IF NOT EXISTS subject (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    created_by INTEGER REFERENCES "user"(id) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Users Table (references class)
 CREATE TABLE IF NOT EXISTS "user" (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -59,30 +79,19 @@ CREATE TABLE IF NOT EXISTS "user" (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_user_email ON "user"(email);
 CREATE INDEX IF NOT EXISTS idx_user_type ON "user"(user_type);
 CREATE INDEX IF NOT EXISTS idx_user_class ON "user"(class_id);
 
--- Classes Table
-CREATE TABLE IF NOT EXISTS "class" (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL,
-    description TEXT,
-    created_by INTEGER REFERENCES "user"(id) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- Update class table created_by reference now that user exists
+ALTER TABLE "class" DROP CONSTRAINT IF EXISTS class_created_by_fkey;
+ALTER TABLE "class" ADD CONSTRAINT class_created_by_fkey FOREIGN KEY (created_by) REFERENCES "user"(id);
+ALTER TABLE subject DROP CONSTRAINT IF EXISTS subject_created_by_fkey;
+ALTER TABLE subject ADD CONSTRAINT subject_created_by_fkey FOREIGN KEY (created_by) REFERENCES "user"(id);
 
-CREATE INDEX IF NOT EXISTS idx_class_name ON "class"(name);
-
--- Subjects Table
-CREATE TABLE IF NOT EXISTS subject (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    created_by INTEGER REFERENCES "user"(id) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- ============================================
+-- ASSOCIATION TABLES
+-- ============================================
 
 -- Teacher-Classes Association Table
 CREATE TABLE IF NOT EXISTS teacher_classes (
@@ -113,7 +122,11 @@ CREATE TABLE IF NOT EXISTS teacher_class_subjects (
     PRIMARY KEY (teacher_id, class_id, subject_id)
 );
 
--- Tasks Table
+-- ============================================
+-- TASK-RELATED TABLES
+-- ============================================
+
+-- Tasks Table (references user)
 CREATE TABLE IF NOT EXISTS task (
     id SERIAL PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
@@ -138,7 +151,7 @@ CREATE TABLE IF NOT EXISTS task_classes (
     PRIMARY KEY (task_id, class_id)
 );
 
--- Assignments Table
+-- Assignments Table (references task and user)
 CREATE TABLE IF NOT EXISTS assignment (
     id SERIAL PRIMARY KEY,
     task_id INTEGER REFERENCES task(id) NOT NULL,
@@ -152,7 +165,7 @@ CREATE INDEX IF NOT EXISTS idx_assignment_task ON assignment(task_id);
 CREATE INDEX IF NOT EXISTS idx_assignment_student ON assignment(student_id);
 CREATE INDEX IF NOT EXISTS idx_assignment_status ON assignment(status);
 
--- Submissions Table
+-- Submissions Table (references assignment and user)
 CREATE TABLE IF NOT EXISTS submission (
     id SERIAL PRIMARY KEY,
     assignment_id INTEGER REFERENCES assignment(id) NOT NULL,
@@ -167,7 +180,11 @@ CREATE TABLE IF NOT EXISTS submission (
 
 CREATE INDEX IF NOT EXISTS idx_submission_assignment ON submission(assignment_id);
 
--- Notifications Table
+-- ============================================
+-- NOTIFICATIONS & MESSAGES
+-- ============================================
+
+-- Notifications Table (references user)
 CREATE TABLE IF NOT EXISTS notification (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES "user"(id) NOT NULL,
@@ -197,7 +214,7 @@ CREATE TABLE IF NOT EXISTS contact_message (
 CREATE INDEX IF NOT EXISTS idx_contact_read ON contact_message(is_read);
 CREATE INDEX IF NOT EXISTS idx_contact_category ON contact_message(category);
 
--- Chat Rooms Table
+-- Chat Rooms Table (references class and user)
 CREATE TABLE IF NOT EXISTS chat_room (
     id SERIAL PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
@@ -211,7 +228,7 @@ CREATE TABLE IF NOT EXISTS chat_room (
 CREATE INDEX IF NOT EXISTS idx_room_type ON chat_room(room_type);
 CREATE INDEX IF NOT EXISTS idx_room_class ON chat_room(class_id);
 
--- Chat Messages Table
+-- Chat Messages Table (references room and user)
 CREATE TABLE IF NOT EXISTS chat_message (
     id SERIAL PRIMARY KEY,
     room_id INTEGER REFERENCES chat_room(id) NOT NULL,
@@ -233,19 +250,6 @@ CREATE INDEX IF NOT EXISTS idx_message_user ON chat_message(user_id);
 INSERT INTO "user" (name, email, password_hash, user_type)
 VALUES ('Admin', 'admin@smartedu.com', 'pbkdf2:sha256:260000$w7O1$hash$placeholder', 'admin')
 ON CONFLICT (email) DO NOTHING;
-
--- ============================================
--- FUNCTIONS & TRIGGERS (Optional)
--- ============================================
-
--- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.created_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
 
 -- ============================================
 -- ROW LEVEL SECURITY (Optional - for Supabase)
