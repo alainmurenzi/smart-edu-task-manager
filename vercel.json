@@ -42,8 +42,5 @@
       "PYTHONPATH": "/var/task",
       "UV_SYSTEM": "1"
     }
-  },
-  "installer": {
-    "command": "pip install -r requirements.txt"
   }
 }
