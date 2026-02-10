@@ -1,1 +1,36 @@
-{"version": 2, "framework": "flask", "buildCommand": "pip install -r requirements.txt", "installCommand": "pip install -r requirements.txt", "devCommand": "python run.py", "functions": {"api/index.py": {"runtime": "python3.9", "maxDuration": 10}}, "routes": [{"src": "/api/(.*)", "dest": "/api/index.py"}, {"src": "/(.*)", "dest": "/api/index.py"}], "env": {"FLASK_ENV": "production", "PYTHONPATH": "/var/task"}, "build": {"env": {"FLASK_ENV": "production", "PYTHONPATH": "/var/task"}}}
+{
+  "version": 2,
+  "buildCommand": "pip install -r requirements.txt",
+  "installCommand": "pip install -r requirements.txt",
+  "framework": null,
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.9",
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
+  ],
+  "env": {
+    "PYTHONPATH": "/var/task",
+    "FLASK_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "FLASK_ENV": "production",
+      "PYTHONPATH": "/var/task"
+    }
+  }
+}

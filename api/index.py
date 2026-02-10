@@ -1,6 +1,6 @@
 import os
 import sys
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, send_from_directory
 from flask_cors import CORS
 
 # Add the parent directory to the Python path
@@ -12,16 +12,24 @@ sys.path.insert(0, parent_dir)
 from app import create_app
 
 # Create the Flask app instance
-app = create_app()
+flask_app = create_app()
 
 # Enable CORS for all routes
-CORS(app)
+CORS(flask_app)
 
 def handler(request):
     """Vercel serverless function handler"""
+    # Handle OPTIONS requests for CORS
+    if request.method == 'OPTIONS':
+        response = make_response('')
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response
+    
     try:
         # Create a test request context
-        with app.test_request_context(
+        with flask_app.test_request_context(
             path=request.path,
             method=request.method,
             headers=request.headers,
@@ -29,7 +37,7 @@ def handler(request):
             query_string=request.query
         ):
             # Get the response from the Flask app
-            response = app.full_dispatch_request()
+            response = flask_app.full_dispatch_request()
             
             # Convert Flask response to Vercel response format
             return {
@@ -54,6 +62,3 @@ def handler(request):
                 'message': 'Internal server error'
             })
         }
-
-# Vercel requires the handler function to be exported as 'app'
-app = handler
