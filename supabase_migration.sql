@@ -1,10 +1,10 @@
 -- PostgreSQL Migration for SMART Edu Task Manager
 -- Run this SQL in Supabase SQL Editor
--- WARNING: This will drop existing tables if they exist!
 
 -- ============================================
--- DROP EXISTING TABLES (if running again)
+-- DROP EXISTING TABLES (ignore errors)
 -- ============================================
+BEGIN;
 DROP TABLE IF EXISTS chat_message CASCADE;
 DROP TABLE IF EXISTS chat_room CASCADE;
 DROP TABLE IF EXISTS contact_message CASCADE;
@@ -20,9 +20,10 @@ DROP TABLE IF EXISTS teacher_classes CASCADE;
 DROP TABLE IF EXISTS subject CASCADE;
 DROP TABLE IF EXISTS "user" CASCADE;
 DROP TABLE IF EXISTS "class" CASCADE;
+COMMIT;
 
 -- ============================================
--- DROP ENUM TYPES (if running again)
+-- DROP ENUM TYPES (ignore errors)
 -- ============================================
 DROP TYPE IF EXISTS user_type CASCADE;
 DROP TYPE IF EXISTS task_priority CASCADE;
@@ -32,7 +33,7 @@ DROP TYPE IF EXISTS room_type CASCADE;
 DROP TYPE IF EXISTS contact_category CASCADE;
 
 -- ============================================
--- ENUM TYPES
+-- CREATE ENUM TYPES
 -- ============================================
 CREATE TYPE user_type AS ENUM ('teacher', 'student', 'admin');
 CREATE TYPE task_priority AS ENUM ('low', 'medium', 'high', 'urgent');
@@ -42,7 +43,7 @@ CREATE TYPE room_type AS ENUM ('class', 'teacher');
 CREATE TYPE contact_category AS ENUM ('general', 'support', 'bug', 'feature', 'partnership');
 
 -- ============================================
--- TABLES
+-- CREATE TABLES
 -- ============================================
 
 -- Classes Table
@@ -50,7 +51,7 @@ CREATE TABLE "class" (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
-    created_by INTEGER REFERENCES "user"(id),
+    created_by INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -59,7 +60,7 @@ CREATE TABLE subject (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
-    created_by INTEGER REFERENCES "user"(id),
+    created_by INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -74,6 +75,10 @@ CREATE TABLE "user" (
     class_id INTEGER REFERENCES "class"(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Add foreign key for class.created_by
+ALTER TABLE "class" ADD CONSTRAINT class_created_by_fkey FOREIGN KEY (created_by) REFERENCES "user"(id);
+ALTER TABLE subject ADD CONSTRAINT subject_created_by_fkey FOREIGN KEY (created_by) REFERENCES "user"(id);
 
 -- Teacher-Classes Association Table
 CREATE TABLE teacher_classes (
@@ -194,7 +199,7 @@ CREATE TABLE chat_message (
 );
 
 -- ============================================
--- INDEXES
+-- CREATE INDEXES
 -- ============================================
 CREATE INDEX idx_user_email ON "user"(email);
 CREATE INDEX idx_user_type ON "user"(user_type);
@@ -217,7 +222,7 @@ CREATE INDEX idx_message_room ON chat_message(room_id);
 CREATE INDEX idx_message_user ON chat_message(user_id);
 
 -- ============================================
--- SAMPLE DATA (Optional)
+-- SAMPLE DATA
 -- ============================================
 INSERT INTO "user" (name, email, password_hash, user_type)
 VALUES ('Admin', 'admin@smartedu.com', 'pbkdf2:sha256:260000$w7O1$hash$placeholder', 'admin')
